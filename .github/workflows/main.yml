@@ -24,22 +24,49 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      # --- Step 1: Apply terraform-db ---
+      - name: Terraform Init (DB)
+        working-directory: terraform-db
+        run: terraform init
+
+      - name: Terraform Apply (DB)
+        working-directory: terraform-db
+        run: terraform apply -auto-approve
+
+      # --- Step 2: Get DB connection details and set DATABASE_URL ---
+      - name: Get DB connection details and set DATABASE_URL
+        id: get-db-url
+        working-directory: terraform-db
+        run: |
+          DB_USER=$(terraform output -raw db_username)
+          DB_PASS=$(terraform output -raw db_password)
+          DB_HOST=$(terraform output -raw db_host)
+          DB_PORT=$(terraform output -raw db_port)
+          DB_NAME=$(terraform output -raw db_name)
+          DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require&channel_binding=require"
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+
+      # --- Step 3: Login to Amazon ECR ---
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
+      # --- Step 4: Build and Push Docker Image with DB URL ---
       - name: Build and Push Docker Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: latest
+          DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
+          echo "DATABASE_URL=$DATABASE_URL" > .env
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/medusa-backend:$IMAGE_TAG
-          docker build -t $IMAGE_URI .
+          docker build --build-arg DATABASE_URL=$DATABASE_URL -t $IMAGE_URI .
           docker push $IMAGE_URI
 
-      - name: Terraform Init
-        working-directory: terraform
+      # --- Step 5: Apply terraform-app ---
+      - name: Terraform Init (App)
+        working-directory: terraform-app
         run: terraform init
 
-      - name: Terraform Apply
-        working-directory: terraform
+      - name: Terraform Apply (App)
+        working-directory: terraform-app
         run: terraform apply -auto-approve

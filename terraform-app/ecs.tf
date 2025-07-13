@@ -13,12 +13,6 @@ resource "aws_ecs_task_definition" "medusa" {
       name  = "medusa"
       image = "${aws_ecr_repository.medusa_ecr_repo.repository_url}:latest"
       portMappings = [{ containerPort = 9000, protocol = "tcp" }]
-      environment = [
-        { name = "DATABASE_URL", value = aws_db_instance.medusa_db.endpoint },
-      ]
-      secrets = [
-        { name = "DB_PASSWORD", valueFrom = aws_secretsmanager_secret.medusa_env.arn }
-      ]
      
       }
     
@@ -32,8 +26,8 @@ resource "aws_ecs_service" "medusa" {
   desired_count   = 2
   launch_type     = "FARGATE"
   network_configuration {
-    subnets         = module.vpc.private_subnets
-    security_groups = [aws_security_group.ecs_sg.id]
+    subnets          = data.terraform_remote_state.db.outputs.private_subnets
+    security_groups  = [data.terraform_remote_state.db.outputs.db_sg_id]
     assign_public_ip = false
   }
   load_balancer {
@@ -42,4 +36,21 @@ resource "aws_ecs_service" "medusa" {
     container_port   = 9000
   }
   depends_on = [ aws_lb_listener.http ]
+}
+
+resource "aws_lb_target_group" "medusa" {
+  name     = "medusa-target-group"
+  port     = 9000
+  protocol = "HTTP"
+  vpc_id    = data.terraform_remote_state.db.outputs.vpc_id
+
+  health_check {
+    path                = "/"
+    interval             = 30
+    timeout              = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  target_type = "ip"
 }

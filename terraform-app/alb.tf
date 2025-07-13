@@ -2,15 +2,10 @@ resource "aws_lb" "medusa" {
   name               = "medusa-alb"
   internal           = false
   load_balancer_type = "application"
-  subnets            = module.vpc.public_subnets
-  security_groups    = [aws_security_group.alb_sg.id]
+  security_groups    = [data.terraform_remote_state.db.outputs.db_sg_id]
+  subnets            = data.terraform_remote_state.db.outputs.public_subnets
 }
 
-resource "aws_lb_target_group" "medusa" {
-  port     = 9000
-  protocol = "HTTP"
-  vpc_id   = module.vpc.vpc_id
-}
 
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.medusa.arn

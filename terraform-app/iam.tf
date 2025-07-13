@@ -1,4 +1,3 @@
-
 resource "aws_iam_role" "ecs_exec_role" {
   name = "ecsTaskExecutionRole"
 
@@ -21,5 +20,5 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_attach" {
 
 resource "aws_iam_role_policy_attachment" "ecs_secret_attach" {
   role       = aws_iam_role.ecs_exec_role.name
-  policy_arn = aws_secretsmanager_secret.medusa_env.arn
+  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
 }
