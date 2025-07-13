@@ -20,9 +20,7 @@ output "db_password" {
   value     = aws_db_instance.medusa_db.password
   sensitive = true
 }
-output "db_host" {
-  value = aws_db_instance.medusa_db.address
-}
+
 output "db_port" {
   value = aws_db_instance.medusa_db.port
 }
