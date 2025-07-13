@@ -1,12 +1,13 @@
 resource "aws_db_subnet_group" "medusa_db_subnet" {
   name        = "db-subnet-group"
   description = "Subnet group for Medusa RDS"
-  subnet_ids  = module.vpc.private_subnets
+  subnet_ids  = module.vpc.public_subnets
   tags = {
     Name = "db-subnet-group"
   }
 }
 
+# for future update make rds private
 
 resource "aws_db_instance" "medusa_db" {
   identifier         = "medusa-db"
