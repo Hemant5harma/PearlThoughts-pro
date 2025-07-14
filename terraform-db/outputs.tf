@@ -34,11 +34,6 @@ output "db_password" {
   description = "The password for the RDS database (sensitive)"
 }
 
-output "db_port" {
-  value       = aws_db_instance.medusa_db.port
-  description = "The port number for the RDS database"
-}
-
 output "db_name" {
   value       = aws_db_instance.medusa_db.db_name
   description = "The name of the RDS database"
