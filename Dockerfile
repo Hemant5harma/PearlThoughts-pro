@@ -14,6 +14,10 @@ EXPOSE 9000
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
+# Set additional environment variables
+ENV MEDUSA_ADMIN_ONBOARDING_TYPE=default
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
+
 # Run database migrations
 RUN npx medusa db:migrate
 
