@@ -1,4 +1,4 @@
-FROM node:22.17.0-slim as builder
+FROM node:22.17.0-slim
 
 WORKDIR /app
 
@@ -10,8 +10,14 @@ COPY . .
 
 EXPOSE 9000
 
+# Pass DATABASE_URL as an environment variable
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
+# Run database migrations
 RUN npx medusa db:migrate
 
+# Create an admin user
 RUN npx medusa user -e admin@medusa-test.com -p admin1234
 
 CMD [ "npm", "run", "dev" ]
