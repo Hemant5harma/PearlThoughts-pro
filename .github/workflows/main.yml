@@ -48,6 +48,10 @@ jobs:
           DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}/${DB_NAME}?sslmode=require&channel_binding=require"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
 
+      # --- Debug Step: Echo DATABASE_URL ---
+      - name: Debug DATABASE_URL
+        run: echo "DATABASE_URL=$DATABASE_URL"
+
       # --- Step 3: Login to Amazon ECR ---
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
