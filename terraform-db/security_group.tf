@@ -34,7 +34,7 @@ resource "aws_security_group" "ecs_sg" {
   description = "Allow traffic from ALB and to RDS"
   vpc_id      = module.vpc.vpc_id
 
-  # Ingress from ALB only
+
   ingress {
     from_port       = 9000
     to_port         = 9000
@@ -57,10 +57,10 @@ resource "aws_security_group" "db_sg" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = ["0.0.0.0/0"]
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] 
   }
 
   egress {
@@ -68,5 +68,9 @@ resource "aws_security_group" "db_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "db-sg"
   }
 }
