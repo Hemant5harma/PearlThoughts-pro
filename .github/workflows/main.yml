@@ -41,11 +41,12 @@ jobs:
         id: get-db-url
         working-directory: terraform-db
         run: |
-          DB_USER=$(terraform output -raw db_username)
+          DB_USER=$(terraform output -raw db_user) 
           DB_PASS=$(terraform output -raw db_password)
           DB_HOST=$(terraform output -raw db_endpoint)
+          DB_PORT=$(terraform output -raw db_port)
           DB_NAME=$(terraform output -raw db_name)
-          DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}/${DB_NAME}?sslmode=require&channel_binding=require"
+          DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?ssl=true&sslmode=require&rejectUnauthorized=false"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
 
       # --- Debug Step: Echo DATABASE_URL ---

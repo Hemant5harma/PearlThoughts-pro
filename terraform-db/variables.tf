@@ -4,7 +4,7 @@ variable "db_name" {
   default = "medusa_db"
 }
 
-variable "db_user" { 
+variable "db_username" { 
   type = string
   default = "medusa_user"
 }
